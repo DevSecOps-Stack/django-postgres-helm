@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: postgres-container
+  template:
+    metadata:
+      labels:
+        app: postgres-container
+    spec:
+      containers:
+        - name: postgres-container
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag}}"
+          env:
+           - name: POSTGRES_USER_FILE
+             value: /mnt/secrets-store/user
+           - name: POSTGRES_PASSWORD_FILE
+             value: /mnt/secrets-store/pass
+          #  - name: POSTGRES_INITDB_ARGS
+          #    value: "-A md5"
+          #  - name: PGDATA
+          #    value: /var/postgresql/data
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-volume-mount
+              mountPath: /var/postgresql/data
+            - name: secrets-store01-inline
+              mountPath: /mnt/secrets-store
+              readOnly: true
+      volumes:
+        - name: postgres-volume-mount
+          persistentVolumeClaim:
+            claimName: testproject-pvc
+        - name: secrets-store01-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: azure-sync
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: postgres-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector:
+     app: postgres-container
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

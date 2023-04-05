@@ -1,0 +1,38 @@
+# Default values for helmhelmaksdjangopostgres.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#generic
+replicaCount: 2
+hpa:
+  enabled: true
+  maxReplicas: 10
+  minReplicas: 1
+  targetCPUUtilizationPercentage: 50
+computeres:
+  limits:
+    cpu: 0.1
+    memory: 500Mi
+  requests:
+    cpu: 0.1
+    memory: 500Mi
+
+#postgress
+postgres:
+  image:
+    repository: postgres
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "13-alpine"
+
+
+#django
+django:
+  image:
+    repository: rakesha/djangopostgresaks
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "v10"
+    
+
+

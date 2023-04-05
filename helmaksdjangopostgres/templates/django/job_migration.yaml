@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: django-migrations
+spec:
+  template:
+    spec:
+      containers:
+        - name: frontend-container
+          image: rakesha/djangopostgresaks:v5
+          command: ['python', 'manage.py', 'migrate']
+          env:
+            - name: POSTGRES_USER
+              value: user
+            - name: POSTGRES_PASSWORD
+              value: pass
+            - name: POSTGRES_HOST
+              value: postgres-cluster-ip-service
+      restartPolicy: Never
+  backoffLimit: 5

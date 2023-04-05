@@ -1,0 +1,15 @@
+###########################
+# Persistent Volume Claim
+###########################
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: testproject-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: "testproject-sc"
